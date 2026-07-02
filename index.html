@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora Coste NFQ — Perfiles 2026</title>
+  <style>
+    :root {
+      --bg: #f5f5f5;
+      --card: #ffffff;
+      --primary: #1a1a2e;
+      --accent: #0f3460;
+      --accent-light: #e2e8f0;
+      --text: #1a1a1a;
+      --muted: #64748b;
+      --border: #e2e2e2;
+      --success: #059669;
+      --warn: #d97706;
+      --err: #dc2626;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 24px;
+    }
+
+    .container {
+      max-width: 820px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-width: 160px;
+    }
+
+    .form-group label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    select,
+    input[type="number"] {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      color: var(--text);
+      background: #fff;
+      transition: border-color 0.2s;
+    }
+
+    select:focus,
+    input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(15, 52, 96, 0.1);
+    }
+
+    input[type="number"] {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 28px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn:hover {
+      background: var(--primary);
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    #results {
+      display: none;
+    }
+
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .result-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .cat-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: var(--accent-light);
+      color: var(--accent);
+    }
+
+    .big-number {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
+      line-height: 1.2;
+    }
+
+    .big-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .metric {
+      padding: 12px 16px;
+      background: var(--bg);
+      border-radius: 6px;
+    }
+
+    .metric-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .metric-value {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .breakdown {
+      margin-top: 16px;
+    }
+
+    .breakdown summary {
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .breakdown-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 0.85rem;
+    }
+
+    .breakdown-table th {
+      text-align: left;
+      padding: 6px 8px;
+      border-bottom: 2px solid var(--border);
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+    }
+
+    .breakdown-table td {
+      padding: 6px 8px;
+      border-bottom: 1px solid var(--border);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .breakdown-table td:last-child {
+      text-align: right;
+    }
+
+    .breakdown-table tr.total td {
+      font-weight: 700;
+      border-top: 2px solid var(--primary);
+      border-bottom: none;
+    }
+
+    .breakdown-table tr.subtotal td {
+      font-weight: 600;
+      background: var(--bg);
+    }
+
+    .note {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 12px;
+      padding: 8px 12px;
+      background: #fffbe6;
+      border-radius: 4px;
+      border-left: 3px solid var(--warn);
+    }
+
+    .error-msg {
+      color: var(--err);
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-top: 8px;
+    }
+
+    #errorMsg {
+      display: none;
+    }
+
+    @media (max-width: 600px) {
+      .form-row {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .results-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .big-number {
+        font-size: 1.8rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Calculadora de Coste NFQ</h1>
+    <p class="subtitle">Pricing de perfiles 2026 — Advisory y Tecnología</p>
+
+    <div class="card">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Tipo de perfil</label>
+          <select id="tipo">
+            <option value="ADV">Advisory (ADV)</option>
+            <option value="TEC">Tecnología (TEC)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Tipo de salario</label>
+          <select id="inputType">
+            <option value="bruto">Bruto mensual</option>
+            <option value="neto">Neto mensual (Líquido)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Salario mensual (MXN)</label>
+          <input type="number" id="salario" placeholder="Ej: 45,000" min="0" step="100">
+        </div>
+        <div class="form-group">
+          <label>% Margen (Default 20) </label>
+          <input type="number" id="margen" placeholder="Ej: 20%" min="0" step="100">
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+        <button class="btn" onclick="calcular()">Calcular</button>
+        <div id="errorMsg" class="error-msg"></div>
+      </div>
+    </div>
+
+    <div id="results" class="card">
+      <div class="result-header">
+        <span class="result-title">Resultado</span>
+        <span class="cat-badge" id="catBadge">—</span>
+      </div>
+      <div class="big-label">COSTE NFQ (hora)</div>
+      <div class="big-number" id="costeHora">—</div>
+
+      <div class="results-grid">
+        <div class="metric">
+          <div class="metric-label">Coste NFQ mensual</div>
+          <div class="metric-value" id="costeMes">—</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Coste NFQ anual</div>
+          <div class="metric-value" id="costeAnual">—</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Salario bruto mensual</div>
+          <div class="metric-value" id="brutoMes">—</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Precio al margen indicado (hora)</div>
+          <div class="metric-value" id="precio25">—</div>
+        </div>
+      </div>
+
+      <div class="breakdown">
+        <details>
+          <summary>Ver desglose completo del cálculo</summary>
+          <table class="breakdown-table">
+            <thead>
+              <tr>
+                <th>Concepto</th>
+                <th>Valor (MXN)</th>
+              </tr>
+            </thead>
+            <tbody id="breakdownBody"></tbody>
+          </table>
+        </details>
+      </div>
+
+      <div id="netoNote" class="note" style="display:none;">
+        La conversión Neto → Bruto es una estimación. El IMSS se aproxima al 1.78% del bruto. Para valores exactos,
+        consultar el área de nóminas.
+      </div>
+    </div>
+
+    <div class="card" style="padding:16px;">
+      <details>
+        <summary style="cursor:pointer; font-size:0.85rem; color:var(--muted); font-weight:500;">Rangos salariales por
+          categoría</summary>
+        <div style="overflow-x:auto; margin-top:12px;">
+          <table class="breakdown-table" id="rangesTable"></table>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <script>
+    // ── Configuración de categorías ──
+    const CATEGORIES = {
+      ADV: [
+        { cat: 'ASSO', label: 'Associate', minSBM: 15000, maxSBM: 22500, bonusType: 'pct', bonus: 0, vacDays: 15, seguro: 15729, parking: 31615, fondoAhorroPct: 0.13 },
+        { cat: 'CONS', label: 'Consultant', minSBM: 22500, maxSBM: 35000, bonusType: 'fix', bonus: 20000, vacDays: 15, seguro: 15729, parking: 31615, fondoAhorroPct: 0.13 },
+        { cat: 'CNSR', label: 'Senior Consultant', minSBM: 35000, maxSBM: 50000, bonusType: 'pct', bonus: 0.10, vacDays: 20, seguro: 15729, parking: 31615, fondoAhorroPct: 0.13 },
+        { cat: 'EXSR', label: 'Expert Senior', minSBM: 50000, maxSBM: 65000, bonusType: 'pct', bonus: 0.15, vacDays: 20, seguro: 15729, parking: 31615, fondoAhorroPct: 0.13 },
+        { cat: 'MGR', label: 'Manager', minSBM: 65000, maxSBM: 95000, bonusType: 'pct', bonus: 0.20, vacDays: 20, seguro: 31458, parking: 31615, fondoAhorroPct: 0.13 },
+        { cat: 'SMGR', label: 'Senior Manager', minSBM: 95000, maxSBM: 150000, bonusType: 'pct', bonus: 0.30, vacDays: 20, seguro: 31458, parking: 31615, fondoAhorroPct: 0.13 },
+      ],
+      TEC: [
+        { cat: 'ASSO', label: 'DEV (0-2y)', minSBM: 15000, maxSBM: 22500, bonusType: 'pct', bonus: 0, vacDays: 12, seguro: 15729, parking: 0, fondoAhorroPct: 0 },
+        { cat: 'CONS', label: 'SWE (2-4y)', minSBM: 22500, maxSBM: 35000, bonusType: 'pct', bonus: 0, vacDays: 12, seguro: 15729, parking: 0, fondoAhorroPct: 0 },
+        { cat: 'CNSR', label: 'DEM (4-6y)', minSBM: 35000, maxSBM: 50000, bonusType: 'pct', bonus: 0.10, vacDays: 20, seguro: 15729, parking: 0, fondoAhorroPct: 0 },
+        { cat: 'EXSR', label: 'HEAD (6-8y)', minSBM: 50000, maxSBM: 65000, bonusType: 'pct', bonus: 0.10, vacDays: 20, seguro: 15729, parking: 0, fondoAhorroPct: 0 },
+        { cat: 'MGR', label: 'Manager (>8y)', minSBM: 65000, maxSBM: 95000, bonusType: 'pct', bonus: 0.15, vacDays: 20, seguro: 31458, parking: 0, fondoAhorroPct: 0 },
+      ]
+    };
+
+    // Constantes
+    const ADV_COSTE_INDIR = 96088;
+    const ADV_COSTE_DIR = 30748;
+    const TEC_COSTES_EXT = 5 * 18.6 * 1920; // 178,560
+    const COSTE_SS_PCT = 0.30;
+    const VALES = 24000; // anual
+    const HORAS_AÑO = 1920; // 160*12
+    const CARGABLE_ADV = 0.80;
+    const CARGABLE_TEC = 0.80;
+    //const MARGEN_25 = 0.20;
+    const FONDO_AHORRO_TOPE_ANUAL = 51400;
+
+    // Tablas ISR mensuales 2025
+    const ISR_TABLE = [
+      { limInf: 0.01, limSup: 746.04, cuota: 0, tasa: 0.0192 },
+      { limInf: 746.05, limSup: 6332.05, cuota: 14.32, tasa: 0.0640 },
+      { limInf: 6332.06, limSup: 11128.01, cuota: 371.83, tasa: 0.1088 },
+      { limInf: 11128.02, limSup: 12935.82, cuota: 893.63, tasa: 0.1600 },
+      { limInf: 12935.83, limSup: 15487.71, cuota: 1182.88, tasa: 0.1792 },
+      { limInf: 15487.72, limSup: 31236.49, cuota: 1640.18, tasa: 0.2136 },
+      { limInf: 31236.50, limSup: 49233.00, cuota: 5004.12, tasa: 0.2352 },
+      { limInf: 49233.01, limSup: 93993.90, cuota: 9236.89, tasa: 0.3000 },
+      { limInf: 93993.91, limSup: 125325.20, cuota: 22665.17, tasa: 0.3200 },
+      { limInf: 125325.21, limSup: 375975.61, cuota: 32691.18, tasa: 0.3400 },
+    ];
+
+    const IMSS_PCT = 0.0178; // Aproximación empleado
+
+    // ── Funciones de cálculo ──
+
+    function calcISR(sbm) {
+      for (let i = ISR_TABLE.length - 1; i >= 0; i--) {
+        if (sbm >= ISR_TABLE[i].limInf) {
+          return ISR_TABLE[i].cuota + (sbm - ISR_TABLE[i].limInf) * ISR_TABLE[i].tasa;
+        }
+      }
+      return 0;
+    }
+
+    function calcIMSS(sbm) {
+      return sbm * IMSS_PCT;
+    }
+
+    const APOYO_TRANSPORTE_ADV = 2500; // mensual, solo ADV
+
+    function brutoToNeto(sbm, tipo) {
+      const isr = calcISR(sbm);
+      const imss = calcIMSS(sbm);
+      let fondoAhorroDeduccion = 0;
+      let apoyoTransporte = 0;
+      if (tipo === 'ADV') {
+        fondoAhorroDeduccion = Math.min(sbm * 0.13, FONDO_AHORRO_TOPE_ANUAL / 12);
+        apoyoTransporte = APOYO_TRANSPORTE_ADV;
+      }
+      return sbm + apoyoTransporte - isr - imss - fondoAhorroDeduccion;
+    }
+
+    function netoToBruto(netoTarget, tipo) {
+      // Binary search
+      let lo = netoTarget;
+      let hi = netoTarget * 3;
+      for (let i = 0; i < 100; i++) {
+        const mid = (lo + hi) / 2;
+        const neto = brutoToNeto(mid, tipo);
+        if (Math.abs(neto - netoTarget) < 0.5) return mid;
+        if (neto < netoTarget) lo = mid;
+        else hi = mid;
+      }
+      return (lo + hi) / 2;
+    }
+
+    function findCategory(sbm, tipo) {
+      const cats = CATEGORIES[tipo];
+      for (let i = cats.length - 1; i >= 0; i--) {
+        if (sbm >= cats[i].minSBM) return cats[i];
+      }
+      return null;
+    }
+
+    function calcCosteNFQ(sbm, tipo) {
+      const cat = findCategory(sbm, tipo);
+      let margenInd = parseFloat(document.getElementById('margen').value);
+
+      if (!cat) return null;
+
+      const sba = sbm * 13;
+      const bonusAmount = cat.bonusType === 'fix' ? cat.bonus : sba * cat.bonus;
+      const primaVac = (sbm * 0.25) * (cat.vacDays / 30);
+      const vales = VALES;
+      const fondoAhorro = sbm * 12 * cat.fondoAhorroPct;
+      const totalRetrib = sba + bonusAmount + primaVac + vales + fondoAhorro;
+      const costeSS = (sba + primaVac + bonusAmount) * COSTE_SS_PCT;
+      const totalCosteSS = totalRetrib + costeSS;
+      const seguro = cat.seguro;
+      const parking = cat.parking;
+      const totalSalBen = totalRetrib + seguro + parking;
+      const totalConCoste = totalSalBen + costeSS;
+
+      let costeDir, cargable;
+      if (tipo === 'ADV') {
+        const costeIndir = totalConCoste + ADV_COSTE_INDIR;
+        costeDir = costeIndir + ADV_COSTE_DIR;
+        cargable = costeDir / CARGABLE_ADV;
+      } else {
+        costeDir = TEC_COSTES_EXT + totalConCoste;
+        cargable = costeDir / CARGABLE_TEC;
+      }
+
+      const costeNFQ = cargable / HORAS_AÑO;
+      //const precio25 = cargable * (1 + MARGEN_25) / HORAS_AÑO;
+      if (isNaN(margenInd) || margenInd <= 0) {
+        margenInd = 20;
+      }
+      const precio25 = cargable * (1 + (margenInd * 0.01)) / HORAS_AÑO;
+
+      return {
+        cat, sbm, sba, bonusAmount, primaVac, vales, fondoAhorro,
+        totalRetrib, costeSS, totalCosteSS, seguro, parking,
+        totalSalBen, totalConCoste, costeDir, cargable,
+        costeNFQ, precio25
+      };
+    }
+
+    // ── Formateo ──
+    function fmt(n) {
+      return n.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    function fmtInt(n) {
+      return n.toLocaleString('es-MX', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    }
+
+    // ── UI ──
+    function showError(msg) {
+      const el = document.getElementById('errorMsg');
+      el.textContent = msg;
+      el.style.display = 'block';
+      document.getElementById('results').style.display = 'none';
+    }
+    function hideError() {
+      document.getElementById('errorMsg').style.display = 'none';
+    }
+
+    function calcular() {
+      hideError();
+      const tipo = document.getElementById('tipo').value;
+      const inputType = document.getElementById('inputType').value;
+      const salarioRaw = parseFloat(document.getElementById('salario').value);
+
+      if (isNaN(salarioRaw) || salarioRaw <= 0) {
+        showError('Introduce un salario válido.');
+        return;
+      }
+
+      let sbm;
+      if (inputType === 'neto') {
+        sbm = netoToBruto(salarioRaw, tipo);
+      } else {
+        sbm = salarioRaw;
+      }
+
+      const cats = CATEGORIES[tipo];
+      const minGlobal = cats[0].minSBM;
+      const maxGlobal = cats[cats.length - 1].maxSBM;
+
+      if (sbm < minGlobal || sbm > maxGlobal) {
+        showError(`El bruto mensual resultante ($${fmtInt(sbm)}) está fuera del rango ${tipo}: $${fmtInt(minGlobal)} – $${fmtInt(maxGlobal)}.`);
+        return;
+      }
+
+      const r = calcCosteNFQ(sbm, tipo);
+      if (!r) {
+        showError('No se pudo determinar la categoría.');
+        return;
+      }
+
+      // Mostrar resultados
+      document.getElementById('results').style.display = 'block';
+      document.getElementById('catBadge').textContent = `${r.cat.cat} — ${r.cat.label}`;
+      document.getElementById('costeHora').textContent = `$${fmt(r.costeNFQ)} MXN/h`;
+      document.getElementById('costeMes').textContent = `$${fmtInt(r.cargable / 12)}`;
+      document.getElementById('costeAnual').textContent = `$${fmtInt(r.cargable)}`;
+      document.getElementById('brutoMes').textContent = `$${fmtInt(sbm)}`;
+      document.getElementById('precio25').textContent = `$${fmt(r.precio25)} MXN/h`;
+
+      // Desglose
+      const rows = [
+        ['Salario Bruto Anual (SBA)', fmtInt(r.sba)],
+        ['Bonus', fmtInt(r.bonusAmount)],
+        ['Prima Vacacional', fmtInt(r.primaVac)],
+        ['Vales de Despensa', fmtInt(r.vales)],
+        ['Fondo de Ahorro (empresa)', fmtInt(r.fondoAhorro)],
+        ['__subtotal', 'Total Retribución', fmtInt(r.totalRetrib)],
+        ['Coste Seg. Social (30%)', fmtInt(r.costeSS)],
+        ['__subtotal', 'Total con SS', fmtInt(r.totalCosteSS)],
+        ['Seguro Médico', fmtInt(r.seguro)],
+        ['Parking', fmtInt(r.parking)],
+        ['__subtotal', 'Total Salario + Beneficios + SS', fmtInt(r.totalConCoste)],
+      ];
+
+      if (tipo === 'ADV') {
+        rows.push(['Coste indirecto', fmtInt(ADV_COSTE_INDIR)]);
+        rows.push(['Coste directo', fmtInt(ADV_COSTE_DIR)]);
+      } else {
+        rows.push(['Costes estructura (5 pers × €18.6 × 1,920h)', fmtInt(TEC_COSTES_EXT)]);
+      }
+      rows.push(['__subtotal', 'Coste total antes de cargabilidad', fmtInt(r.costeDir)]);
+      rows.push(['Cargabilidad (' + (CARGABLE_ADV * 100) + '%)', '÷ ' + CARGABLE_ADV]);
+      rows.push(['__total', 'Cargable anual', fmtInt(r.cargable)]);
+      rows.push(['__total', 'COSTE NFQ (hora)', fmt(r.costeNFQ)]);
+
+      let html = '';
+      for (const row of rows) {
+        if (row[0] === '__subtotal') {
+          html += `<tr class="subtotal"><td>${row[1]}</td><td>$${row[2]}</td></tr>`;
+        } else if (row[0] === '__total') {
+          html += `<tr class="total"><td>${row[1]}</td><td>$${row[2]}</td></tr>`;
+        } else {
+          html += `<tr><td>${row[0]}</td><td>$${row[1]}</td></tr>`;
+        }
+      }
+      document.getElementById('breakdownBody').innerHTML = html;
+
+      // Nota si es neto
+      document.getElementById('netoNote').style.display = inputType === 'neto' ? 'block' : 'none';
+    }
+
+    // ── Tabla de rangos ──
+    function buildRangesTable() {
+      let html = '<thead><tr><th>Tipo</th><th>Categoría</th><th>SBM Min</th><th>SBM Max</th><th>Bonus</th><th>Días Vac.</th></tr></thead><tbody>';
+      for (const tipo of ['ADV', 'TEC']) {
+        for (const c of CATEGORIES[tipo]) {
+          const bonusStr = c.bonusType === 'fix'
+            ? `$${fmtInt(c.bonus)} fijo`
+            : (c.bonus === 0 ? '—' : (c.bonus * 100) + '%');
+          html += `<tr>
+        <td>${tipo}</td>
+        <td>${c.cat} — ${c.label}</td>
+        <td>$${fmtInt(c.minSBM)}</td>
+        <td>$${fmtInt(c.maxSBM)}</td>
+        <td>${bonusStr}</td>
+        <td>${c.vacDays}</td>
+      </tr>`;
+        }
+      }
+      html += '</tbody>';
+      document.getElementById('rangesTable').innerHTML = html;
+    }
+
+    // ── Init ──
+    buildRangesTable();
+
+    // Enter key triggers calculation
+    document.getElementById('salario').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') calcular();
+    });
+  </script>
+</body>
+
+</html>
